@@ -25,7 +25,7 @@ public class Usuario {
 
     // 🔹 Relación N:1 → Usuario es el lado dueño
     @ManyToOne
-    @JoinColumn(name = "proveedor_id", nullable = false)
+    @JoinColumn(name = "proveedor_id", nullable = true)
     private Proveedor proveedor;
 
     // 🔹 Relación 1:1 → PerfilUsuario es el lado dueño
@@ -62,5 +62,9 @@ public class Usuario {
 
     public void setId(long l) {
         this.id = l;
+    }
+
+    public void setFechaCreacion(LocalDateTime now) {
+        this.fechaCreacion = now;
     }
 }

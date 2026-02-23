@@ -6,6 +6,8 @@ import com.eva.usuariosclaves.model.Usuario;
 import com.eva.usuariosclaves.repository.UsuarioRepository;
 import com.eva.usuariosclaves.repository.ProveedorRepository;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,22 +23,23 @@ public class UsuarioServiceImpl implements UsuarioService {
         this.proveedorRepository = proveedorRepository;
     }
 
-    @Override
-    public UsuarioDTO crearUsuario(UsuarioDTO usuarioDTO) {
+//    @Override
+//    public UsuarioDTO crearUsuario(UsuarioDTO usuarioDTO) {
+//
+//        Proveedor proveedor = proveedorRepository.findById(usuarioDTO.getProveedorId())
+//                .orElseThrow(() -> new RuntimeException("Proveedor no encontrado"));
+//
+//        Usuario usuario = new Usuario();
+//        usuario.setNombre(usuarioDTO.getNombre());
+//        usuario.setEmail(usuarioDTO.getEmail());
+//        usuario.setPassword(usuarioDTO.getPassword());
+//        usuario.setProveedor(proveedor);
+//
+//        Usuario guardado = usuarioRepository.save(usuario);
+//
+//        return convertirADTO(guardado);
+//    }
 
-        Proveedor proveedor = proveedorRepository.findById(usuarioDTO.getProveedorId())
-                .orElseThrow(() -> new RuntimeException("Proveedor no encontrado"));
-
-        Usuario usuario = new Usuario();
-        usuario.setNombre(usuarioDTO.getNombre());
-        usuario.setEmail(usuarioDTO.getEmail());
-        usuario.setPassword(usuarioDTO.getPassword());
-        usuario.setProveedor(proveedor);
-
-        Usuario guardado = usuarioRepository.save(usuario);
-
-        return convertirADTO(guardado);
-    }
 
     @Override
     public List<UsuarioDTO> listarUsuarios() {
@@ -71,6 +74,25 @@ public class UsuarioServiceImpl implements UsuarioService {
     public void eliminarUsuario(Long id) {
         usuarioRepository.deleteById(id);
     }
+    @Override
+    public UsuarioDTO crearUsuario(UsuarioDTO usuarioDTO) {
+
+        Usuario usuario = new Usuario();
+        usuario.setNombre(usuarioDTO.getNombre());
+        usuario.setEmail(usuarioDTO.getEmail());
+        usuario.setPassword(usuarioDTO.getPassword());
+        usuario.setFechaCreacion(LocalDateTime.now());
+
+        Usuario guardado = usuarioRepository.save(usuario);
+
+        return new UsuarioDTO(
+                guardado.getId(),
+                guardado.getNombre(),
+                guardado.getEmail(),
+                guardado.getFechaCreacion(),
+                guardado.getPassword()
+        );
+    }
 
     private UsuarioDTO convertirADTO(Usuario usuario) {
         return new UsuarioDTO(
@@ -78,11 +100,8 @@ public class UsuarioServiceImpl implements UsuarioService {
                 usuario.getNombre(),
                 usuario.getEmail(),
                 usuario.getFechaCreacion(),
-                usuario.getProveedor().getId(),
-                usuario.getProveedor().getNombreEmpresa(),
                 usuario.getPassword()
-                // aunque es una mala práctica en este caso quiero mostraar la contraaseña
-                //los DTOS no deben mostrarla pero yo aquí SI quiero.
         );
     }
+
 }
