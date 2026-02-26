@@ -40,8 +40,9 @@ class UsuarioControllerTest {
                 "Juan",
                 "juan@test.com",
                 LocalDateTime.now(),
-                1L,
-                "Empresa Test","contraseña"
+                "contraseña",      // ✔ password
+                1L,                // ✔ proveedorId
+                "Empresa Test"     // ✔ proveedorNombre
         );
 
         when(usuarioService.crearUsuario(org.mockito.ArgumentMatchers.any()))
@@ -50,11 +51,10 @@ class UsuarioControllerTest {
         mockMvc.perform(post("/api/usuarios")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isOk())
+                .andExpect(status().isOk())   // cambia a isCreated() si tu controller devuelve 201
                 .andExpect(jsonPath("$.nombre").value("Juan"))
                 .andExpect(jsonPath("$.proveedorNombre").value("Empresa Test"));
     }
-
     @Test
     void obtenerPorId_deberiaRetornarUsuario() throws Exception {
 
@@ -63,8 +63,9 @@ class UsuarioControllerTest {
                 "Ana",
                 "ana@test.com",
                 LocalDateTime.now(),
-                1L,
-                "Empresa","contraseña"
+                "contraseña",   // ✔ password
+                1L,             // ✔ proveedorId
+                "Empresa"
         );
 
         when(usuarioService.obtenerPorId(1L)).thenReturn(dto);

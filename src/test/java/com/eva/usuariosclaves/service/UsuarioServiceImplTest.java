@@ -48,8 +48,9 @@ class UsuarioServiceImplTest {
                 "Juan",
                 "juan@test.com",
                 LocalDateTime.now(),
+                "contrasenia",
                 1L,
-                null,"contrasenia"
+                null
         );
 
         when(proveedorRepository.findById(1L)).thenReturn(Optional.of(proveedor));

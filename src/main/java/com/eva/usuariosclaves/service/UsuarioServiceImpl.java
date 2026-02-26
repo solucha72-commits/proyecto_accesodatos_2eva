@@ -23,23 +23,26 @@ public class UsuarioServiceImpl implements UsuarioService {
         this.proveedorRepository = proveedorRepository;
     }
 
-//    @Override
-//    public UsuarioDTO crearUsuario(UsuarioDTO usuarioDTO) {
-//
-//        Proveedor proveedor = proveedorRepository.findById(usuarioDTO.getProveedorId())
-//                .orElseThrow(() -> new RuntimeException("Proveedor no encontrado"));
-//
-//        Usuario usuario = new Usuario();
-//        usuario.setNombre(usuarioDTO.getNombre());
-//        usuario.setEmail(usuarioDTO.getEmail());
-//        usuario.setPassword(usuarioDTO.getPassword());
-//        usuario.setProveedor(proveedor);
-//
-//        Usuario guardado = usuarioRepository.save(usuario);
-//
-//        return convertirADTO(guardado);
-//    }
+    @Override
+    public UsuarioDTO crearUsuario(UsuarioDTO usuarioDTO) {
 
+        Usuario usuario = new Usuario();
+        usuario.setNombre(usuarioDTO.getNombre());
+        usuario.setEmail(usuarioDTO.getEmail());
+        usuario.setPassword(usuarioDTO.getPassword());
+        usuario.setFechaCreacion(LocalDateTime.now());
+
+        // Si pasas proveedorId, busca y asigna el proveedor automáticamente
+        if (usuarioDTO.getProveedorId() != null) {
+            Proveedor proveedor = proveedorRepository.findById(usuarioDTO.getProveedorId())
+                    .orElseThrow(() -> new RuntimeException("Proveedor no encontrado"));
+            usuario.setProveedor(proveedor);
+        }
+
+        Usuario guardado = usuarioRepository.save(usuario);
+
+        return convertirADTO(guardado);
+    }
 
     @Override
     public List<UsuarioDTO> listarUsuarios() {
@@ -62,8 +65,21 @@ public class UsuarioServiceImpl implements UsuarioService {
         Usuario existente = usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
+        // Actualizar nombre y email (siempre)
         existente.setNombre(usuarioDTO.getNombre());
         existente.setEmail(usuarioDTO.getEmail());
+
+        // Actualizar password si se proporciona
+        if (usuarioDTO.getPassword() != null && !usuarioDTO.getPassword().isEmpty()) {
+            existente.setPassword(usuarioDTO.getPassword());
+        }
+
+        // Actualizar proveedor si se proporciona
+        if (usuarioDTO.getProveedorId() != null) {
+            Proveedor proveedor = proveedorRepository.findById(usuarioDTO.getProveedorId())
+                    .orElseThrow(() -> new RuntimeException("Proveedor no encontrado"));
+            existente.setProveedor(proveedor);
+        }
 
         Usuario actualizado = usuarioRepository.save(existente);
 
@@ -74,34 +90,19 @@ public class UsuarioServiceImpl implements UsuarioService {
     public void eliminarUsuario(Long id) {
         usuarioRepository.deleteById(id);
     }
-    @Override
-    public UsuarioDTO crearUsuario(UsuarioDTO usuarioDTO) {
-
-        Usuario usuario = new Usuario();
-        usuario.setNombre(usuarioDTO.getNombre());
-        usuario.setEmail(usuarioDTO.getEmail());
-        usuario.setPassword(usuarioDTO.getPassword());
-        usuario.setFechaCreacion(LocalDateTime.now());
-
-        Usuario guardado = usuarioRepository.save(usuario);
-
-        return new UsuarioDTO(
-                guardado.getId(),
-                guardado.getNombre(),
-                guardado.getEmail(),
-                guardado.getFechaCreacion(),
-                guardado.getPassword()
-        );
-    }
 
     private UsuarioDTO convertirADTO(Usuario usuario) {
+        Long proveedorId = usuario.getProveedor() != null ? usuario.getProveedor().getId() : null;
+        String proveedorNombre = usuario.getProveedor() != null ? usuario.getProveedor().getNombreEmpresa() : null;
+
         return new UsuarioDTO(
                 usuario.getId(),
                 usuario.getNombre(),
                 usuario.getEmail(),
                 usuario.getFechaCreacion(),
-                usuario.getPassword()
+                usuario.getPassword(),
+                proveedorId,
+                proveedorNombre
         );
     }
-
 }
